@@ -1,0 +1,66 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: "Manrope", sans-serif;
+    background: #F8FAFC;
+    color: #111827;
+    -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .font-display { font-family: "Outfit", sans-serif; }
+.font-mono, code { font-family: "JetBrains Mono", monospace; }
+::selection { background: #B9F36B; color: #111827; }
+
+@layer base {
+    :root {
+        --background: 210 40% 98%;
+        --foreground: 221 39% 11%;
+        --card: 0 0% 100%;
+        --card-foreground: 221 39% 11%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 221 39% 11%;
+        --primary: 221 39% 11%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 210 40% 96%;
+        --secondary-foreground: 221 39% 11%;
+        --muted: 210 40% 96%;
+        --muted-foreground: 215 16% 47%;
+        --accent: 86 84% 69%;
+        --accent-foreground: 221 39% 11%;
+        --destructive: 0 72% 45%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 221 39% 11%;
+        --radius: 0.5rem;
+    }
+}
+
+@layer base {
+    * { @apply border-border; }
+    body { @apply bg-background text-foreground; }
+}
+
+.fade-up { animation: fadeUp .35s ease-out both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media print {
+    .no-print { display: none !important; }
+    .print-area { padding: 0 !important; }
+    body { background: #fff; }
+}
+
+@layer base {
+    [data-debug-wrapper="true"] { display: contents !important; }
+    [data-debug-wrapper="true"] > * {
+        margin-left: inherit; margin-right: inherit; margin-top: inherit; margin-bottom: inherit;
+        padding-left: inherit; padding-right: inherit; padding-top: inherit; padding-bottom: inherit;
+        column-gap: inherit; row-gap: inherit; gap: inherit;
+        border-left-width: inherit; border-right-width: inherit; border-top-width: inherit; border-bottom-width: inherit;
+        border-left-style: inherit; border-right-style: inherit; border-top-style: inherit; border-bottom-style: inherit;
+        border-left-color: inherit; border-right-color: inherit; border-top-color: inherit; border-bottom-color: inherit;
+    }
+}

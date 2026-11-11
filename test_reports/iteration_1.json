@@ -1,0 +1,54 @@
+{
+  "summary": "Iteration 1 (first run). Backend: 23 pytest tests covering all 20 mandatory cases, the EV Rent partner API, all 13 reports in json/csv/xlsx, RBAC, and admin endpoint smoke tests. All 23 passed. test_06 failed once with a 401 on one admin call and passed when re-run. Frontend: Playwright with Clerk ticket sign-in. Passed: admin dashboard (KPIs, 9 charts, demo banner, session kept after refresh), create payment request dialog -> detail page, simulate success, receipt page, bank import wizard (auto column mapping, preview, import result), reconciliation run, unmatched-payments sheet LINK_TO_PAYMENT -> request SUCCESS, drivers sheet, reports CSV/XLSX download, supervisors role selects, Kotak switch disabled with notice, API key issued in UI, sync and webhook tabs, audit logs, settings save, supervisor's limited sidebar and city scope, pending-access screen and sign-out, mobile nav drawer. Main bugs: a list search race condition, no client-side route guard for finance-only pages, and native date pickers.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/exceptions/{id}/resolve (LINK_TO_PAYMENT)", "issue": "A real bank credit can be linked to a MOCK (simulated) payment request. The request keeps is_simulated=true and the SIMULATED badge, while the new txn has is_simulated=false, provider=MOCK and source MANUAL_RESOLUTION. This mixes real and simulated money. Restrict linking to STATIC_QR / non-simulated requests."},
+      {"endpoint": "/api/v1/* partner API", "issue": "Not scoped per API client or system. Any active key, including MYVOLT/OTHER keys, can read any payment, driver history or receipt, and can create payments. Consider checking client.system == EV_RENT for create/utr/dispute."},
+      {"endpoint": "Clerk auth (clerk_auth.verify_session_token)", "issue": "Synchronous PyJWKClient fetch inside the async request path blocks the event loop on JWKS refresh. JWKS connection errors are a PyJWTError, so they surface as 401 'Invalid or expired session'. Likely cause of one 401 seen with a fresh (<25s) token during the test run."},
+      {"endpoint": "POST /api/v1/payments/{id}/dispute", "issue": "A second dispute on the same day returns 200 with exception_id=null and status UNDER_REVIEW, but nothing is recorded (deduped silently). Return the existing exception id."},
+      {"endpoint": "POST /api/webhooks/{provider}", "issue": "Every invalid-signature request stores up to 5KB of payload with no TTL. The only limit is 1200/min per IP, so the collection can grow without bound. Add a TTL index on REJECTED_SIGNATURE docs. The rate limiter is also in-memory and per process."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ListTable / useFetch (components/ListPage.jsx, lib/api.js)", "issue": "Race condition. The search box fires a request on every change with no debounce, and useFetch has no stale-response guard (no AbortController or request-id check). A slower, earlier unfiltered response can overwrite filtered results. Seen in testing: searching a UTR on Unmatched Payments right after page load showed 6 unrelated rows. The API returns 1 for the same query. Affects every list page.", "selector": "[data-testid=exceptions-table-search]", "priority": "MEDIUM"},
+      {"component": "Routing (App.js)", "issue": "No role-based route guard. A supervisor opening /bank directly sees the finance Bank Transactions page, including the 'Import statement' button. The API returns 403 but the UI shows 'No records found' with no access-denied message. The same likely applies to /reports, /reconciliation, /settlements, /settings, /audit, /integrations, /providers and /supervisors. The backend is secure; this is UI only.", "selector": "[data-testid=open-import-btn]", "priority": "MEDIUM"},
+      {"component": "Drivers sheet", "issue": "'Create payment request' is enabled when Payable now is ₹0.00, so clicking it will hit a 409. Disable it or explain why.", "selector": "[data-testid=driver-create-request-btn]", "priority": "LOW"},
+      {"component": "PaymentDetail Sync tab", "issue": "Sync status stays 'Sync Pending' after the worker has synced; it only updates on manual reload. Consider polling while status is SYNC_PENDING or RETRY_PENDING.", "selector": "[data-testid=tab-sync]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Bank transactions / list filters / Reports date range", "issues": ["DateInput uses the browser's native <input type=date> (mm/dd/yyyy) instead of a shadcn Calendar/Popover date picker"]},
+      {"screen": "Reconciliation", "issues": ["The run-reconciliation toast shows raw JSON, e.g. 'Run RUN-...: {\"MISSING_IN_BANK\":0}'. Format the counts."]},
+      {"screen": "Drivers sheet", "issues": ["The recent payment requests table overflows horizontally (RECON column cut off) at 1920 width in the sm:max-w-xl sheet"]},
+      {"screen": "Supervisors & users", "issues": ["The 'Joined' column shows '—' for every user (created_at missing or not rendered)"]},
+      {"screen": "Global", "issues": ["Console a11y warning: a DialogContent has no DialogTitle", "Nav data-testids are duplicated because the sidebar renders twice (desktop and mobile drawer), so automated tests must scope them"]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/conftest.py", "/app/backend/tests/test_rupay39_cases.py", "/app/backend/tests/test_partner_reports.py", "/app/backend/tests/make_tickets.py", "/app/backend/tests/ui_fixture.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Add a stale-response guard (AbortController or request counter) to useFetch and debounce the ListTable search (about 300ms)",
+    "Add role-based route guards using me.permissions/role: redirect or show access-denied for finance/admin-only routes, and hide finance actions for supervisors",
+    "Replace the native date inputs (kit.jsx DateInput) with a shadcn Calendar + Popover",
+    "Block LINK_TO_PAYMENT on simulated (MOCK) requests, or label the result clearly",
+    "Scope the partner API by api client system (EV_RENT) and consider per-client ownership checks",
+    "Run Clerk JWKS verification off the event loop (run_in_threadpool) and distinguish JWKS fetch errors (503) from invalid tokens (401)",
+    "Minor UX: disable the driver-sheet create button when payable is 0, poll sync status on the detail page, format the recon toast, add DialogTitle"
+  ],
+  "critical_code_review_comments": [
+    "engine.record_success: residual outstanding uses the req['total_payable'] snapshot taken when the request was created. If MyVolt outstanding changes between creation and confirmation, the update overwrites it. Use $inc or recompute.",
+    "recon.run_reconciliation: the MISSING_IN_BANK update_many covers every non-simulated success in the global bank window, not just the current import. That is acceptable, but it can flip txns from unrelated periods once statements span long ranges.",
+    "routes_v1 webhook: provider path is upper-cased, but unknown providers return 404 without being logged. Fine, but consider auditing.",
+    "useFetch: an error state exists, but ListTable never renders it, so 403/500 errors show as 'No records found'"
+  ],
+  "updated_files": ["/app/backend/tests/conftest.py", "/app/backend/tests/test_rupay39_cases.py", "/app/backend/tests/test_partner_reports.py", "/app/backend/tests/make_tickets.py", "/app/backend/tests/ui_fixture.py"],
+  "success_rate": {"backend": "100% (23/23; test_06 flaky once with an intermittent 401)", "frontend": "about 90% (all flows work; route-guard and search-race bugs)"},
+  "flaky_tests": ["test_06_static_qr_no_auto_assign_and_ambiguous: 1 failure in 2 runs, a 401 from /api/bank/transactions with a fresh Clerk token. Passed on retry."],
+  "test_credentials": "Used the existing Clerk users in /app/memory/test_credentials.md (admin, finance, supervisor [Chennai], pending). They were not modified.",
+  "seed_data_creation": "Tests insert TEST_DRV-*/TEST_VEH-* drivers directly in mongo and delete them, plus their requests, txns, receipts, sync logs and exceptions, by id at session end. Bank rows from test imports are deleted by import_id. TEST_ API clients are revoked. Settings toggles were restored to false. UI-created data (2 TEST drivers, 1 import, 1 API key) was cleaned manually. Seed DEMO data was not modified. Audit-log and webhook entries from tests remain, as they are append-only.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Run: cd /app/backend && python -m pytest tests/ -q (about 150s, needs CLERK_SECRET_KEY and MONGO_URL read from backend/.env via dotenv; values are never printed). conftest.ClerkClient refreshes 60s Clerk JWTs every 25s. UI sign-in: python /app/backend/tests/make_tickets.py admin supervisor pending -> /tmp/tickets.json (single-use tickets), open /sign-in?__clerk_ticket=<t>. TEST drivers for UI: python /app/backend/tests/ui_fixture.py setup | cleanup <ids>. Primary provider is MOCK; STATIC_QR is enabled. Retest after fixes: list search race, supervisor route guards, date picker.",
+  "rca of the issue": "Search race: ListPage.jsx sets state.q on every onChange, and lib/api.js useFetch calls setData(r.data) for whichever response resolves last, with no cancellation. Reproduce: open /exceptions and immediately type a UTR; the table can show the initial unfiltered page. Fix: AbortController in the useFetch effect cleanup, or ignore responses whose key differs from the latest, plus a debounced q."
+}

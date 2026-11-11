@@ -1,0 +1,126 @@
+{
+  "project_name": "RUPAY39",
+  "tagline": "Independent Payment Management & Reconciliation Platform",
+  "brand_credit": "Powered by Route39 Mobility",
+  "app_type": "Fintech Admin Dashboard",
+  "theme": "Light",
+  "archetype": "THE PERFORMANCE PRO / SWISS HIGH-CONTRAST FINTECH",
+  "typography": {
+    "heading_font": "Outfit, sans-serif",
+    "body_font": "Inter, sans-serif",
+    "mono_font": "JetBrains Mono, monospace",
+    "scale": {
+      "h1": "text-2xl sm:text-3xl font-bold tracking-tight text-[#111827]",
+      "h2": "text-xl sm:text-2xl font-semibold tracking-tight text-[#111827]",
+      "h3": "text-lg font-semibold text-[#111827]",
+      "h4": "text-base font-medium text-[#111827]",
+      "body": "text-sm text-[#475569] leading-relaxed",
+      "caption": "text-xs font-medium text-[#64748B]",
+      "kpi_value": "text-2xl lg:text-3xl font-bold tracking-tight text-[#111827] font-mono",
+      "currency": "font-mono font-medium tracking-tight"
+    }
+  },
+  "colors": {
+    "midnight_navy": "#111827",
+    "electric_lime": "#B9F36B",
+    "electric_lime_hover": "#a3e635",
+    "electric_lime_subtle": "rgba(185, 243, 107, 0.15)",
+    "slate_bg": "#F8FAFC",
+    "card_bg": "#FFFFFF",
+    "border_subtle": "#E2E8F0",
+    "border_medium": "#CBD5E1",
+    "cool_grey": "#94A3B8",
+    "text_primary": "#111827",
+    "text_secondary": "#475569",
+    "text_muted": "#64748B",
+    "status": {
+      "success_bg": "#ECFDF5",
+      "success_text": "#047857",
+      "success_border": "#A7F3D0",
+      "pending_bg": "#FFFBEB",
+      "pending_text": "#B45309",
+      "pending_border": "#FDE68A",
+      "failed_bg": "#FEF2F2",
+      "failed_text": "#B91C1C",
+      "failed_border": "#FECACA",
+      "unmatched_bg": "#EFF6FF",
+      "unmatched_text": "#1D4ED8",
+      "unmatched_border": "#BFDBFE"
+    }
+  },
+  "layout_and_navigation": {
+    "sidebar": {
+      "width": "w-64",
+      "bg": "bg-[#111827]",
+      "text": "text-[#94A3B8]",
+      "active_bg": "bg-[#1F2937]",
+      "active_text": "text-white font-medium border-r-2 border-[#B9F36B]",
+      "hover_bg": "hover:bg-[#1F2937]/70 hover:text-white",
+      "items": [
+        "Dashboard",
+        "Payments",
+        "Payment Requests",
+        "Bank Transactions",
+        "Reconciliation",
+        "Unmatched Payments",
+        "Settlements",
+        "Drivers",
+        "Vehicles",
+        "Reports",
+        "Supervisors",
+        "Payment Providers",
+        "API Integrations",
+        "Audit Logs",
+        "Settings"
+      ]
+    },
+    "header": {
+      "bg": "bg-white/80 backdrop-blur-md border-b border-[#E2E8F0] z-30 sticky top-0",
+      "components": [
+        "Brand Logo & Dynamic Configurable Title",
+        "Global Search Bar",
+        "City/State Filter (Tamil Nadu / Karnataka)",
+        "Date Range Selector",
+        "Role Badge (Supervisor, Finance Admin, Super Admin)",
+        "User Profile Dropdown / Logout"
+      ]
+    },
+    "main_container": {
+      "bg": "bg-[#F8FAFC]",
+      "padding": "p-4 sm:p-6 lg:p-8 space-y-6"
+    }
+  },
+  "components_and_visual_enhancers": {
+    "kpi_cards": "Flat solid white cards with subtle 1px border (#E2E8F0), top accent strip in Electric Lime (#B9F36B) or status color, crisp clear typography, right-aligned metric trends, data-testid attributes",
+    "data_tables": "Sticky table headers, dense layout with horizontal borders (#F1F5F9), status badges, search input, date range filters, pagination controls, right-aligned monetary values formatted in INR (\u20b9)",
+    "dialogs_and_modals": "Shadcn Dialog primitives with backdrop shadow, high contrast header, clear explicit action buttons",
+    "reconciliation_queue": "Split-pane layout comparing Bank Statement lines vs Fleet Collection logs with auto-match candidate badges, mismatch confidence score, and resolution dialog",
+    "import_mapping_wizard": "4-step stepper (Upload CSV/XLSX -> Map Columns -> Validation Preview -> Import Result) with visual column target dropdowns"
+  },
+  "image_urls": {
+    "logos": {
+      "routestar_ev": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=120&q=80",
+      "upi_icon": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=80&q=80"
+    },
+    "avatars": {
+      "super_admin": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80",
+      "finance_admin": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
+      "supervisor": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build the dashboard in React JS using clean component decomposition.",
+    "Ensure all monetary amounts use formatted INR (\u20b9) with proper thousand separators (e.g., \u20b91,45,200.00).",
+    "Ensure all interactive buttons, rows, filters, modals, and input fields include role-based data-testid attributes (e.g., data-testid='kpi-active-drivers', data-testid='payment-search-input').",
+    "Implement Google sign-in mock flow on login page with role switcher (Supervisor, Finance Admin, Super Admin).",
+    "Implement CSV/XLSX import with interactive column mapping preview for Bank Transactions & Payments.",
+    "Ensure total responsiveness for desktop and tablet screens.",
+    "Keep colors clean: Light background #F8FAFC, Midnight Navy #111827 for headers/sidebar, Electric Lime #B9F36B for primary accent triggers."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": {
+    "testing": "All interactive elements MUST have data-testid attributes in kebab-case.",
+    "file_type": "Codebase uses .js and .jsx files.",
+    "toast": "Use sonner for user feedback toasts.",
+    "theme_rule": "Light theme requested by user. Ensure all modals, popovers, select dropdowns have explicit non-transparent backgrounds (bg-white text-[#111827])."
+  }
+}
