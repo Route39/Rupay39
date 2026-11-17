@@ -64,3 +64,9 @@ h1, h2, h3, .font-display { font-family: "Outfit", sans-serif; }
         border-left-color: inherit; border-right-color: inherit; border-top-color: inherit; border-bottom-color: inherit;
     }
 }
+
+/* scrollbars: hide horizontal bars (swipe still works), keep slim vertical ones */
+*::-webkit-scrollbar { width: 8px; height: 0; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+*::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

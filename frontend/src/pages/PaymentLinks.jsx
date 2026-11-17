@@ -316,7 +316,7 @@ export default function PaymentLinks() {
         {/* Account 1: Driver Operations */}
         <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
                 <Users className="h-5 w-5" />
               </div>
@@ -327,7 +327,7 @@ export default function PaymentLinks() {
                     A/C 1 · Live
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 truncate">Rent collections, swaps & driver payouts</p>
+                <p className="text-[11px] text-slate-500 sm:truncate">Rent collections, swaps & driver payouts</p>
               </div>
             </div>
             <span className="shrink-0 font-mono text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
@@ -336,17 +336,17 @@ export default function PaymentLinks() {
           </div>
 
           <div className="mt-3.5 rounded-xl bg-slate-50 p-2.5 sm:p-3 text-xs space-y-1.5 border border-slate-100">
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
               <span className="text-slate-500">Merchant UPI ID:</span>
-              <span className="font-mono font-bold text-slate-900 truncate max-w-[180px] sm:max-w-none">
+              <span className="font-mono font-bold text-slate-900 break-all sm:text-right">
                 {accountsForm.driver_vpa}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
               <span className="text-slate-500">Bank & A/C:</span>
               <span className="font-medium text-slate-700">Kotak Mahindra Bank (•••• 3901)</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
               <span className="text-slate-500">Settlement SLA:</span>
               <span className="font-bold text-emerald-600">Real-Time T+0 (0s Delay)</span>
             </div>
@@ -356,7 +356,7 @@ export default function PaymentLinks() {
         {/* Account 2: Investor Payouts & Capital */}
         <div className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
                 <Briefcase className="h-5 w-5" />
               </div>
@@ -367,7 +367,7 @@ export default function PaymentLinks() {
                     A/C 2 · Live
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 truncate">Vehicle financing, ROI & investor yields</p>
+                <p className="text-[11px] text-slate-500 sm:truncate">Vehicle financing, ROI & investor yields</p>
               </div>
             </div>
             <span className="shrink-0 font-mono text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
@@ -376,17 +376,17 @@ export default function PaymentLinks() {
           </div>
 
           <div className="mt-3.5 rounded-xl bg-slate-50 p-2.5 sm:p-3 text-xs space-y-1.5 border border-slate-100">
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
               <span className="text-slate-500">Investor UPI ID:</span>
-              <span className="font-mono font-bold text-slate-900 truncate max-w-[180px] sm:max-w-none">
+              <span className="font-mono font-bold text-slate-900 break-all sm:text-right">
                 {accountsForm.investor_vpa}
               </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
               <span className="text-slate-500">Bank & A/C:</span>
               <span className="font-medium text-slate-700">Kotak Mahindra Bank (•••• 5822)</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
               <span className="text-slate-500">Settlement SLA:</span>
               <span className="font-bold text-indigo-600">Real-Time T+0 (0s Delay)</span>
             </div>
@@ -430,7 +430,7 @@ export default function PaymentLinks() {
       {/* 5. SUB-TABS & ACCOUNT FILTER (Smooth Horizontal Scroll on Mobile) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-3 gap-3">
         {/* Status Tabs */}
-        <div className="flex items-center gap-4 sm:gap-6 text-xs font-semibold overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-6 text-xs font-semibold">
           {[
             { id: "ALL", label: "All Links", count: orders.length },
             { id: "CREATED", label: "Created / Pending", count: orders.filter(o => o.status === "PENDING").length },
@@ -461,12 +461,12 @@ export default function PaymentLinks() {
         </div>
 
         {/* Account Filter Pill */}
-        <div className="flex items-center gap-2 overflow-x-auto">
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
           <span className="text-xs text-slate-500 font-medium whitespace-nowrap">Filter Account:</span>
-          <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs whitespace-nowrap">
+          <div className="grid grid-cols-3 items-stretch sm:inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs sm:whitespace-nowrap">
             <button
               onClick={() => setAccountFilter("ALL")}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition ${
+              className={`rounded-md px-1.5 py-1.5 text-center leading-tight text-[11px] font-semibold transition sm:px-2.5 sm:py-1 ${
                 accountFilter === "ALL" ? "bg-slate-900 text-white" : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -474,7 +474,7 @@ export default function PaymentLinks() {
             </button>
             <button
               onClick={() => setAccountFilter("DRIVER")}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition ${
+              className={`rounded-md px-1.5 py-1.5 text-center leading-tight text-[11px] font-semibold transition sm:px-2.5 sm:py-1 ${
                 accountFilter === "DRIVER" ? "bg-emerald-600 text-white" : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -482,7 +482,7 @@ export default function PaymentLinks() {
             </button>
             <button
               onClick={() => setAccountFilter("INVESTOR")}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition ${
+              className={`rounded-md px-1.5 py-1.5 text-center leading-tight text-[11px] font-semibold transition sm:px-2.5 sm:py-1 ${
                 accountFilter === "INVESTOR" ? "bg-indigo-600 text-white" : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -515,8 +515,61 @@ export default function PaymentLinks() {
         </div>
       </div>
 
-      {/* 7. FULLY RESPONSIVE TABLE WITH EXPANDABLE LOGS */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      {/* 7a. MOBILE CARD LIST (phones only) */}
+      <div className="space-y-2.5 sm:hidden">
+        {filtered.length === 0 ? (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-10 text-center text-xs text-slate-400">
+            No payment links found. Tap <strong>"Create Payment Link"</strong> above to generate one.
+          </div>
+        ) : filtered.map((order) => {
+          const st = { SUCCESS: ["Paid", "bg-emerald-100 text-emerald-700"], PENDING: ["Pending", "bg-amber-100 text-amber-700"],
+            PARTIALLY_PAID: ["Partially Paid", "bg-blue-100 text-blue-700"], EXPIRED: ["Expired", "bg-red-100 text-red-700"],
+            FAILED: ["Failed", "bg-red-100 text-red-700"] }[order.status] || [order.status, "bg-slate-100 text-slate-600"];
+          const inv = order.account_type === "INVESTOR";
+          const btn = "flex flex-1 flex-col items-center gap-0.5 rounded-lg border py-1.5 text-[10px] font-semibold transition";
+          return (
+            <div key={order.order_id} className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm" data-testid={`link-card-${order.order_id}`}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="break-all font-mono text-xs font-bold text-slate-900">{order.order_id}</span>
+                    <SimBadge show={order.is_simulated} />
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-slate-500">{dt(order.created_at)}</div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className="font-mono text-sm font-bold text-slate-900">{inr(order.amount)}</div>
+                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${st[1]}`}>{st[0]}</span>
+                </div>
+              </div>
+              <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px]">
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-slate-800">{order.customer_name || "Route39 Driver"}</div>
+                  <div className="truncate text-slate-400">{order.customer_phone || order.driver_id || "Direct"}{order.purpose ? ` · ${order.purpose}` : ""}</div>
+                </div>
+                <span className={`shrink-0 rounded border px-2 py-0.5 text-[10px] font-bold ${inv ? "border-indigo-200 bg-indigo-50 text-indigo-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+                  {inv ? "Investor" : "Driver"}
+                </span>
+              </div>
+              {order.receipt_no && <div className="mt-1 font-mono text-[10px] font-semibold text-emerald-600">{order.receipt_no}</div>}
+              <div className="mt-3 flex gap-1.5 border-t border-slate-100 pt-3">
+                <button onClick={() => copyLink(order.order_id)} className={`${btn} border-slate-200 text-slate-600`}>
+                  {copiedId === order.order_id ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}Copy
+                </button>
+                <button onClick={() => setQrModalOrder(order)} className={`${btn} border-slate-200 text-slate-600`}><QrCode className="h-4 w-4" />QR</button>
+                <button onClick={() => shareWhatsApp(order)} className={`${btn} border-emerald-200 bg-emerald-50 text-emerald-700`}><Send className="h-4 w-4" />WhatsApp</button>
+                <a href={`/pay/${order.order_id}`} target="_blank" rel="noreferrer" className={`${btn} border-[#111827] bg-[#111827] text-white`}><ExternalLink className="h-4 w-4" />Open</a>
+                {order.status === "PENDING" && (
+                  <button onClick={() => handleSimulatePay(order.order_id)} className={`${btn} border-[#B9F36B] bg-[#B9F36B] text-[#0B0F19]`}><Zap className="h-4 w-4" />Simulate</button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 7. FULLY RESPONSIVE TABLE WITH EXPANDABLE LOGS (tablet & desktop) */}
+      <div className="hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:block">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[700px] sm:min-w-full">
             <thead className="border-b border-slate-200 bg-slate-50 font-semibold text-slate-600">

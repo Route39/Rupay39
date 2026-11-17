@@ -1,4 +1,3 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Input } from "./ui/input";
 import { label } from "../lib/format";
 
@@ -39,29 +38,37 @@ export const PageHeader = ({ title, subtitle, children }) => (
 );
 
 export const Card = ({ title, action, children, className = "", testid }) => (
-  <section data-testid={testid} className={`rounded-xl border border-[#E2E8F0] bg-white ${className}`}>
+  <section data-testid={testid} className={`min-w-0 rounded-xl border border-[#E2E8F0] bg-white ${className}`}>
     {title && (
-      <div className="flex items-center justify-between border-b border-[#F1F5F9] px-5 py-3.5">
+      <div className="flex items-center justify-between gap-2 border-b border-[#F1F5F9] px-4 py-3.5 sm:px-5">
         <h3 className="text-sm font-semibold">{title}</h3>
         {action}
       </div>
     )}
-    <div className="p-5">{children}</div>
+    <div className="min-w-0 overflow-x-auto p-4 sm:p-5">{children}</div>
   </section>
 );
 
-export const FilterSelect = ({ value, onChange, options, placeholder, testid, allLabel = "All", className = "w-40" }) => (
-  <Select value={value || "ALL"} onValueChange={onChange}>
-    <SelectTrigger className={`h-9 bg-white text-sm ${className}`} data-testid={testid}><SelectValue placeholder={placeholder} /></SelectTrigger>
-    <SelectContent className="bg-white">
-      <SelectItem value="ALL">{allLabel}{placeholder ? ` ${placeholder.toLowerCase()}` : ""}</SelectItem>
-      {options.map((o) => {
-        const v = typeof o === "string" ? o : o.value;
-        return <SelectItem key={v} value={v}>{typeof o === "string" ? label(o) : o.label}</SelectItem>;
-      })}
-    </SelectContent>
-  </Select>
-);
+export const FilterSelect = ({ value, onChange, options, placeholder, testid, allLabel = "All" }) => {
+  const cur = value || "ALL";
+  const items = [{ v: "ALL", l: placeholder ? `${allLabel} ${placeholder.toLowerCase()}` : allLabel },
+    ...options.map((o) => (typeof o === "string" ? { v: o, l: label(o) } : { v: o.value, l: o.label }))];
+  const dup = items.slice(1).find((i) => i.l === items[0].l);
+  const list = dup ? items.slice(1) : items;
+  const active = dup && cur === "ALL" ? dup.v : cur;
+  return (
+    <div className="flex w-full flex-wrap items-center gap-2" role="radiogroup" data-testid={testid}>
+      {placeholder && <span className="w-24 shrink-0 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{placeholder}</span>}
+      {list.map(({ v, l }) => (
+        <button key={v} type="button" role="radio" aria-checked={active === v} onClick={() => onChange(v)}
+          data-testid={`${testid}-${String(v).toLowerCase()}`}
+          className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-colors ${active === v ? "border-[#B9F36B] bg-[#B9F36B] text-[#111827]" : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"}`}>
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 export const DateInput = ({ value, onChange, testid }) => (
   <Input type="date" value={value || ""} onChange={(e) => onChange(e.target.value)} className="h-9 w-[150px] bg-white text-sm" data-testid={testid} />
