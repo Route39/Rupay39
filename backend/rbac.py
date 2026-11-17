@@ -1,10 +1,9 @@
 import os
 import hashlib
-import requests
 from fastapi import Depends, HTTPException, Request
 from pymongo import ReturnDocument
 
-from clerk_auth import require_user
+from auth import require_user
 from core import db, now
 
 # Highest first. "admin" = Super Admin. "pending" = signed in but not yet approved (no access).
@@ -22,7 +21,7 @@ PERMISSIONS = {
     "pending": [],
 }
 
-ENV = "live" if os.environ.get("CLERK_PUBLISHABLE_KEY", "").startswith("pk_live_") else "preview"
+ENV = "live"
 IN_ENV = {"env": {"$in": [ENV, None]}}
 
 
@@ -31,33 +30,22 @@ def effective_role(role) -> str:
     return role if role in ROLES else DEFAULT_ROLE
 
 
-def _clerk_profile(user_id: str) -> dict:
-    admins = {e.strip().lower() for e in os.environ.get("ADMIN_EMAIL", "").split(",") if e.strip()}
-    r = requests.get(f"https://api.clerk.com/v1/users/{user_id}", timeout=10,
-                     headers={"Authorization": f"Bearer {os.environ['CLERK_SECRET_KEY']}", "User-Agent": "emergent-app"})
-    r.raise_for_status()
-    data = r.json()
-    emails = data.get("email_addresses", [])
-    verified = [e["email_address"].lower() for e in emails if (e.get("verification") or {}).get("status") == "verified"]
-    email = verified[0] if verified else (emails[0]["email_address"].lower() if emails else "")
-    name = " ".join(x for x in [data.get("first_name"), data.get("last_name")] if x) or email
-    return {"email": email, "name": name, "is_admin": any(e in admins for e in verified)}
-
-
 async def current_member(user: dict = Depends(require_user)) -> dict:
     uid = user["user_id"]
-    member = await db.users.find_one({"user_id": uid}, {"_id": 0})
-    if member is None or not member.get("role"):
-        prof = _clerk_profile(uid)
-        role = "admin" if prof["is_admin"] else DEFAULT_ROLE
-        await db.users.update_one({"user_id": uid, "role": {"$in": [None, ""]}}, {"$set": {"role": role}})
+    member = await db.users.find_one({"$or": [{"user_id": uid}, {"id": uid}]}, {"_id": 0})
+    if member is None and user.get("email"):
+        member = await db.users.find_one({"email": user["email"]}, {"_id": 0})
+    if member is None:
+        email = (user.get("email") or "").strip().lower()
+        admins = {e.strip().lower() for e in os.environ.get("ADMIN_EMAIL", "support@route39.in").split(",") if e.strip()}
+        role = "admin" if email in admins else DEFAULT_ROLE
         member = await db.users.find_one_and_update(
             {"user_id": uid},
-            {"$setOnInsert": {"user_id": uid, "role": role, "email": prof["email"], "name": prof["name"],
+            {"$setOnInsert": {"id": uid, "user_id": uid, "role": role, "email": email, "name": email.split("@")[0] or "User",
                               "cities": [], "active": True, "created_at": now()}},
             upsert=True, projection={"_id": 0}, return_document=ReturnDocument.AFTER)
     if member.get("env") != ENV:
-        await db.users.update_one({"user_id": uid}, {"$set": {"env": ENV}})
+        await db.users.update_one({"$or": [{"user_id": uid}, {"id": uid}]}, {"$set": {"env": ENV}})
     if member.get("active") is False:
         raise HTTPException(status_code=403, detail="Account disabled")
     return {**member, "env": ENV, "role": effective_role(member.get("role"))}

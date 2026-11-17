@@ -61,11 +61,27 @@ def normalise(row: dict, mapping: dict, keywords: list[str]) -> dict:
     elif debit:
         amount, direction = debit, "DEBIT"
     direction = "DEBIT" if direction.startswith(("D", "DR")) else "CREDIT"
-    desc = str(get("description"))
+    desc = str(get("description")).strip()
     utr = "".join(ch for ch in str(get("utr")) if ch.isalnum()) or None
+    payer_name = str(get("payer_name")).strip() if get("payer_name") else None
+    payer_vpa = str(get("payer_vpa")).strip() if get("payer_vpa") else None
+
+    # Auto-extract 12-digit UTR and Payer Name from Kotak Mahindra Bank narration format:
+    # Example from Kotak NetBanking: "668417224728/RAMESH K/ATTENDY TECHNOLOGIES PRIV"
+    if desc:
+        import re
+        if not utr:
+            m = re.search(r'\b(\d{12})\b', desc)
+            if m:
+                utr = m.group(1)
+        if not payer_name and "/" in desc:
+            parts = [p.strip() for p in desc.split("/") if p.strip()]
+            if len(parts) >= 2 and len(parts[0]) == 12 and parts[0].isdigit():
+                payer_name = parts[1]
+
     is_settlement = any(k.upper() in desc.upper() for k in keywords if k)
-    return {"utr": utr, "amount": amount, "txn_time": _time(get("txn_time")), "payer_vpa": str(get("payer_vpa")) or None,
-            "payer_name": str(get("payer_name")) or None, "description": desc, "direction": direction,
+    return {"utr": utr, "amount": amount, "txn_time": _time(get("txn_time")), "payer_vpa": payer_vpa or None,
+            "payer_name": payer_name or None, "description": desc, "direction": direction,
             "entry_type": "SETTLEMENT" if is_settlement else "TRANSACTION"}
 
 

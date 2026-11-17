@@ -6,12 +6,13 @@ from contextlib import suppress
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from core import ensure_indexes, db, client, now
-from clerk_auth import clerk_router
+from core import ensure_indexes, db, client, now, new_id
+from auth import auth_router
 from routes_admin import router as admin_router
 from routes_finance import router as finance_router
 from routes_system import router as system_router
 from routes_v1 import router as v1_router, hooks as hooks_router
+from routes_checkout import router as checkout_router
 from engine import expire_requests
 from rbac import RETIRED_ROLES
 from seed import bootstrap
@@ -31,10 +32,10 @@ async def health():
     return {"status": "ok", "service": "rupay39", "time": now().isoformat()}
 
 
-for r in (clerk_router, admin_router, finance_router, system_router, v1_router, hooks_router):
+for r in (auth_router, admin_router, finance_router, system_router, v1_router, hooks_router, checkout_router):
     app.include_router(r)
 
-app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=os.environ["CORS_ORIGINS"].split(","),
+app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
                    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"], allow_headers=["*"])
 
 
@@ -48,12 +49,33 @@ async def worker():
         await asyncio.sleep(10)
 
 
+async def ensure_admin_account():
+    admins = [e.strip().lower() for e in os.environ.get("ADMIN_EMAIL", "support@route39.in").split(",") if e.strip()]
+    for email in admins:
+        exists = await db.users.find_one({"email": email})
+        if not exists:
+            uid = new_id("USR")
+            # No hardcoded password: user sets their password upon first login or registration
+            await db.users.insert_one({
+                "id": uid,
+                "user_id": uid,
+                "name": "Super Admin",
+                "email": email,
+                "role": "admin",
+                "cities": [],
+                "active": True,
+                "created_at": now(),
+                "updated_at": now(),
+            })
+
+
 @app.on_event("startup")
 async def startup():
     await ensure_indexes()
     for old, new in RETIRED_ROLES.items():
         await db.users.update_many({"role": old}, {"$set": {"role": new}})
     await bootstrap()
+    await ensure_admin_account()
     app.state.worker = asyncio.create_task(worker())
 
 

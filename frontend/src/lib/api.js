@@ -1,20 +1,33 @@
 import axios from "axios";
-import { useAuth } from "@clerk/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-export const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+export const API = `${process.env.REACT_APP_BACKEND_URL || ""}/api`;
+export const TOKEN_KEY = "rupay39_token";
+
+export function getAuthToken() {
+  return localStorage.getItem(TOKEN_KEY) || localStorage.getItem("token") || "";
+}
+
+export function setAuthToken(token) {
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem("token", token);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem("token");
+  }
+}
 
 export function useApi() {
-  const { getToken } = useAuth();
   return useMemo(() => {
     const inst = axios.create({ baseURL: API });
     inst.interceptors.request.use(async (cfg) => {
-      const t = await getToken();
+      const t = getAuthToken();
       if (t) cfg.headers.Authorization = `Bearer ${t}`;
       return cfg;
     });
     return inst;
-  }, [getToken]);
+  }, []);
 }
 
 const clean = (p) => Object.fromEntries(Object.entries(p || {}).filter(([, v]) => v !== "" && v !== null && v !== undefined && v !== "ALL"));

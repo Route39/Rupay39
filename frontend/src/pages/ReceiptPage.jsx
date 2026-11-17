@@ -8,7 +8,7 @@ import { inr, dt } from "../lib/format";
 
 export default function ReceiptPage() {
   const { no } = useParams();
-  const { data, error } = useFetch(`/admin/receipts/${no}`);
+  const { data, error } = useFetch(`/checkout/receipts/${no}`);
   if (error) return <p className="p-8 text-sm text-red-600">{error}</p>;
   if (!data) return null;
   const r = data.receipt;

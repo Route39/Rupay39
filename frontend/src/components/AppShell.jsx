@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { UserButton } from "@clerk/react";
 import {
   LayoutDashboard, Receipt, FileClock, Landmark, GitCompareArrows, AlertTriangle, Wallet, Users, Truck, FileBarChart,
-  ShieldCheck, Plug, Network, ScrollText, Settings, Menu, X,
+  ShieldCheck, Plug, Network, ScrollText, Settings, Menu, X, LogOut, Link2,
 } from "lucide-react";
 import { useMe } from "../context/MeContext";
+import { Button } from "@/components/ui/button";
 
 const NAV = [
-  ["/", "Dashboard", LayoutDashboard, "staff"], ["/payments", "Payments", Receipt, "staff"], ["/requests", "Payment Requests", FileClock, "staff"],
+  ["/", "Dashboard", LayoutDashboard, "staff"],
+  ["/payment-links", "Payment Links", Link2, "staff"],
+  ["/payments", "Payments", Receipt, "staff"],
+  ["/requests", "Payment Requests", FileClock, "staff"],
   ["/bank", "Bank Transactions", Landmark, "finance"], ["/reconciliation", "Reconciliation", GitCompareArrows, "finance"],
   ["/exceptions", "Unmatched Payments", AlertTriangle, "staff"], ["/settlements", "Settlements", Wallet, "finance"],
   ["/drivers", "Drivers", Users, "staff"], ["/vehicles", "Vehicles", Truck, "staff"], ["/reports", "Reports", FileBarChart, "finance"],
@@ -18,12 +21,12 @@ const NAV = [
 
 export const Logo = ({ brand, dark }) => (
   <div className="flex items-center gap-2.5" data-testid="brand-logo">
-    {brand.logo_url ? <img src={brand.logo_url} alt="" className="h-8 w-8 rounded object-contain" /> : (
+    {brand?.logo_url ? <img src={brand.logo_url} alt="" className="h-8 w-8 rounded object-contain" /> : (
       <div className="grid h-8 w-8 place-items-center rounded-md bg-[#B9F36B] font-display text-sm font-bold text-[#111827]">₹</div>
     )}
     <div className="leading-tight">
-      <div className={`font-display text-lg font-bold tracking-tight ${dark ? "text-white" : "text-[#111827]"}`}>{brand.brand_name}</div>
-      <div className="text-[9px] font-semibold tracking-[0.2em] text-[#94A3B8]">{brand.brand_tagline}</div>
+      <div className={`font-display text-lg font-bold tracking-tight ${dark ? "text-white" : "text-[#111827]"}`}>{brand?.brand_name || "RUPAY39"}</div>
+      <div className="text-[9px] font-semibold tracking-[0.2em] text-[#94A3B8]">{brand?.brand_tagline || "POWERED BY ROUTE39"}</div>
     </div>
   </div>
 );
@@ -48,8 +51,10 @@ function Sidebar({ onNavigate }) {
 }
 
 export default function AppShell() {
-  const { me } = useMe();
+  const { me, logout } = useMe();
   const [open, setOpen] = useState(false);
+  const initial = (me?.name || me?.email || "U").charAt(0).toUpperCase();
+
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
       <div className="no-print sticky top-0 hidden h-screen lg:block"><Sidebar /></div>
@@ -66,9 +71,21 @@ export default function AppShell() {
           <div className="flex items-center gap-3">
             <div className="text-right leading-tight">
               <div className="text-xs font-semibold" data-testid="header-user-email">{me?.email}</div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-[#4d7c0f]" data-testid="header-role-badge">{me?.role_label}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#4d7c0f]" data-testid="header-role-badge">{me?.role_label || me?.role}</div>
             </div>
-            <UserButton />
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-[#111827] text-xs font-bold text-white shadow-sm">
+              {initial}
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={logout}
+              title="Sign out"
+              className="h-8 w-8 text-slate-500 hover:text-red-600 hover:bg-red-50"
+              data-testid="header-signout-btn"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </header>
         <main className="print-area flex-1 space-y-6 p-4 sm:p-6 lg:p-8"><Outlet /></main>

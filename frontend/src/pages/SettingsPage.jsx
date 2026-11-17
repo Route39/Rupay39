@@ -25,7 +25,8 @@ export default function SettingsPage() {
   const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
   const save = async () => {
     const keys = ["brand_name", "brand_tagline", "logo_url", "payment_expiry_minutes", "allow_partial_payments", "static_qr_image_url", "static_qr_vpa",
-      "static_qr_merchant_name", "myvolt_simulate_failure", "support_contact"];
+      "static_qr_merchant_name", "driver_vpa", "driver_account_name", "driver_account_no", "investor_vpa", "investor_account_name", "investor_account_no",
+      "myvolt_simulate_failure", "support_contact"];
     try {
       await api.patch("/settings", { ...Object.fromEntries(keys.map((k) => [k, f[k]])), settlement_keywords: String(f.settlement_keywords).split(",").map((s) => s.trim()).filter(Boolean) });
       toast.success("Settings saved");
@@ -47,6 +48,21 @@ export default function SettingsPage() {
         <Card title="Static QR (interim Kotak merchant QR)"><div className="space-y-3">
           <Txt k="static_qr_image_url" label="QR image URL (shown in EV Rent)" {...p} /><Txt k="static_qr_vpa" label="Merchant VPA" {...p} /><Txt k="static_qr_merchant_name" label="Payee name" {...p} />
           <p className="text-xs text-slate-500">Static QR payments are confirmed only when the bank statement UTR matches the driver's claimed UTR. Screenshots are never proof.</p>
+        </div></Card>
+        <Card title="Multi-Account Routing (Driver & Investor Accounts)"><div className="space-y-4">
+          <div className="rounded-lg bg-emerald-50 p-2.5 text-xs text-emerald-800 font-medium">
+            Account 1: Driver Operations (0% Gateway Fee · Direct Kotak Bank Settlement)
+          </div>
+          <Txt k="driver_vpa" label="Driver Ops UPI ID (e.g. yourname@kotak)" {...p} />
+          <Txt k="driver_account_name" label="Driver Payee Name" {...p} />
+          <Txt k="driver_account_no" label="Driver Bank Account Number" {...p} />
+
+          <div className="mt-3 rounded-lg bg-indigo-50 p-2.5 text-xs text-indigo-800 font-medium">
+            Account 2: Investor Capital & Payouts (0% Gateway Fee · Real-Time T+0)
+          </div>
+          <Txt k="investor_vpa" label="Investor UPI ID (e.g. yourinvestors@kotak)" {...p} />
+          <Txt k="investor_account_name" label="Investor Payee Name" {...p} />
+          <Txt k="investor_account_no" label="Investor Bank Account Number" {...p} />
         </div></Card>
         <Card title="Reconciliation & integrations"><div className="space-y-4">
           <Txt k="settlement_keywords" label="Settlement narration keywords (comma separated)" {...p} />

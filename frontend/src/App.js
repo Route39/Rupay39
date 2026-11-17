@@ -1,11 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Show, SignIn, SignUp, useClerk } from "@clerk/react";
 import { Loader2, Lock } from "lucide-react";
-import ClerkAuthProvider from "@/components/auth/ClerkAuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { MeProvider, useMe, useBranding } from "@/context/MeContext";
 import AppShell, { Logo } from "@/components/AppShell";
+import AuthPage from "@/pages/AuthPage";
 import Dashboard from "@/pages/Dashboard";
 import Payments from "@/pages/Payments";
 import PaymentRequests from "@/pages/PaymentRequests";
@@ -23,6 +22,8 @@ import Integrations from "@/pages/Integrations";
 import AuditLogs from "@/pages/AuditLogs";
 import SettingsPage from "@/pages/SettingsPage";
 import ReceiptPage from "@/pages/ReceiptPage";
+import HostedCheckout from "@/pages/HostedCheckout";
+import PaymentLinks from "@/pages/PaymentLinks";
 
 function AuthLayout({ children }) {
   const brand = useBranding();
@@ -31,11 +32,18 @@ function AuthLayout({ children }) {
       <div className="relative hidden w-[46%] flex-col justify-between overflow-hidden bg-[#111827] p-12 lg:flex">
         <Logo brand={brand} dark />
         <div className="relative z-10">
-          <h1 className="font-display text-5xl font-bold leading-[1.05] text-white">Every rupee,<br /><span className="text-[#B9F36B]">verified by the bank.</span></h1>
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-[#94A3B8]">Central payment verification, collection monitoring and reconciliation for the Route39 EV fleet. No screenshots. Only bank-confirmed money.</p>
+          <h1 className="font-display text-5xl font-bold leading-[1.05] text-white">
+            Every rupee,<br /><span className="text-[#B9F36B]">verified by the bank.</span>
+          </h1>
+          <p className="mt-5 max-w-md text-sm leading-relaxed text-[#94A3B8]">
+            Central payment verification, collection monitoring and reconciliation for the Route39 EV fleet.
+            No screenshots. Only bank-confirmed money.
+          </p>
         </div>
         <div className="grid grid-cols-3 gap-4 text-[11px] text-[#94A3B8]">
-          {["Bank-verified only", "Idempotent ledger", "Audit everything"].map((t) => <div key={t} className="border-t border-white/10 pt-3">{t}</div>)}
+          {["Bank-verified only", "Idempotent ledger", "Audit everything"].map((t) => (
+            <div key={t} className="border-t border-white/10 pt-3">{t}</div>
+          ))}
         </div>
         <div className="pointer-events-none absolute -right-24 top-1/3 h-80 w-80 rounded-full border-[40px] border-[#B9F36B]/10" />
       </div>
@@ -60,17 +68,26 @@ const F = (el) => <Guard need="finance">{el}</Guard>;
 const S = (el) => <Guard need="super">{el}</Guard>;
 
 function Gate() {
-  const { me, loading, error, isStaff } = useMe();
-  const { signOut } = useClerk();
-  if (loading && !me) return <div className="grid min-h-screen place-items-center"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
+  const { me, loading, error, isStaff, logout } = useMe();
+  if (loading && !me) {
+    return (
+      <div className="grid min-h-screen place-items-center">
+        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+      </div>
+    );
+  }
   if (error || !isStaff) {
     return (
       <AuthLayout>
         <div className="max-w-sm text-center" data-testid="pending-access">
           <Lock className="mx-auto h-8 w-8 text-slate-400" />
           <h2 className="mt-4 text-xl font-semibold">Access pending approval</h2>
-          <p className="mt-2 text-sm text-slate-500">{error || `Signed in as ${me?.email}. A Super Admin must assign you a role (Supervisor or Finance Admin) before you can view financial data.`}</p>
-          <Button className="mt-6" variant="outline" onClick={() => signOut()} data-testid="pending-signout-btn">Sign out</Button>
+          <p className="mt-2 text-sm text-slate-500">
+            {error || `Signed in as ${me?.email}. A Super Admin must assign you a role (Supervisor or Finance Admin) before you can view financial data.`}
+          </p>
+          <Button className="mt-6" variant="outline" onClick={logout} data-testid="pending-signout-btn">
+            Sign out
+          </Button>
         </div>
       </AuthLayout>
     );
@@ -80,6 +97,7 @@ function Gate() {
       <Route path="/receipts/:no" element={<ReceiptPage />} />
       <Route element={<AppShell />}>
         <Route index element={<Dashboard />} />
+        <Route path="payment-links" element={<PaymentLinks />} />
         <Route path="payments" element={<Payments />} />
         <Route path="requests" element={<PaymentRequests />} />
         <Route path="requests/:id" element={<PaymentDetail />} />
@@ -102,24 +120,32 @@ function Gate() {
 }
 
 function Protected() {
-  return (
-    <>
-      <Show when="signed-in"><MeProvider><Gate /></MeProvider></Show>
-      <Show when="signed-out"><Navigate to="/sign-in" replace /></Show>
-    </>
-  );
+  const { token, loading } = useMe();
+  if (loading) {
+    return (
+      <div className="grid min-h-screen place-items-center">
+        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+      </div>
+    );
+  }
+  if (!token) {
+    return <Navigate to="/sign-in" replace />;
+  }
+  return <Gate />;
 }
 
 export default function App() {
   return (
     <BrowserRouter>
-      <ClerkAuthProvider>
+      <MeProvider>
         <Routes>
-          <Route path="/sign-in/*" element={<AuthLayout><SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" withSignUp /></AuthLayout>} />
-          <Route path="/sign-up/*" element={<AuthLayout><SignUp routing="path" path="/sign-up" signInUrl="/sign-in" /></AuthLayout>} />
+          <Route path="/pay/:orderId" element={<HostedCheckout />} />
+          <Route path="/receipts/:no" element={<ReceiptPage />} />
+          <Route path="/sign-in/*" element={<AuthPage mode="sign-in" />} />
+          <Route path="/sign-up/*" element={<AuthPage mode="sign-up" />} />
           <Route path="/*" element={<Protected />} />
         </Routes>
-      </ClerkAuthProvider>
+      </MeProvider>
       <Toaster position="top-right" richColors />
     </BrowserRouter>
   );

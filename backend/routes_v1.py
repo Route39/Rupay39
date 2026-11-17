@@ -1,4 +1,5 @@
 """Partner APIs for the EV Rent backend (service-to-service, X-API-Key) and provider webhooks."""
+import os
 import time
 from collections import defaultdict, deque
 
@@ -45,7 +46,10 @@ PUBLIC_FIELDS = ["id", "internal_ref", "driver_id", "vehicle_id", "driver_name",
 
 def public(req: dict) -> dict:
     out = {k: req.get(k) for k in PUBLIC_FIELDS}
-    out["payment_id"] = out.pop("id")
+    pid = out.pop("id")
+    out["payment_id"] = pid
+    base = os.environ.get("FRONTEND_URL", "http://localhost:3010")
+    out["checkout_url"] = f"{base}/pay/{pid}"
     return clean(out)
 
 

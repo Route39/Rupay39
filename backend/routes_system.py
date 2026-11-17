@@ -190,6 +190,16 @@ class SettingsUpdate(BaseModel):
     static_qr_image_url: str | None = Field(default=None, max_length=500)
     static_qr_vpa: str | None = Field(default=None, max_length=100)
     static_qr_merchant_name: str | None = Field(default=None, max_length=100)
+    driver_vpa: str | None = Field(default=None, max_length=100)
+    driver_account_name: str | None = Field(default=None, max_length=100)
+    driver_account_no: str | None = Field(default=None, max_length=50)
+    driver_bank_name: str | None = Field(default=None, max_length=100)
+    driver_ifsc: str | None = Field(default=None, max_length=20)
+    investor_vpa: str | None = Field(default=None, max_length=100)
+    investor_account_name: str | None = Field(default=None, max_length=100)
+    investor_account_no: str | None = Field(default=None, max_length=50)
+    investor_bank_name: str | None = Field(default=None, max_length=100)
+    investor_ifsc: str | None = Field(default=None, max_length=20)
     settlement_keywords: list[str] | None = None
     myvolt_simulate_failure: bool | None = None
     support_contact: str | None = Field(default=None, max_length=200)

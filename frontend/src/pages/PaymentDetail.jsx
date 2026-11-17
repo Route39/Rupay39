@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, FlaskConical, ReceiptText } from "lucide-react";
+import { ArrowLeft, FlaskConical, ReceiptText, ExternalLink } from "lucide-react";
 import { Card, Field, PageHeader, StatusBadge, SimBadge } from "../components/kit";
 import { DataTable } from "../components/DataTable";
 import { Button } from "../components/ui/button";
@@ -56,7 +56,14 @@ export default function PaymentDetail() {
       <Link to="/requests" className="no-print inline-flex items-center gap-1 text-xs text-slate-500 hover:text-[#111827]" data-testid="back-to-requests"><ArrowLeft className="h-3.5 w-3.5" />Payment requests</Link>
       <PageHeader title={<span className="flex flex-wrap items-center gap-3 font-mono text-xl sm:text-2xl">{r.id}<StatusBadge status={r.status} testid="detail-status" /><StatusBadge status={r.reconciliation_status} testid="detail-recon-status" /><SimBadge show={r.is_simulated} /></span>}
         subtitle={`${r.driver_name} · ${r.vehicle_reg} · ${r.city}`}>
-        {data.receipt && <Link to={`/receipts/${data.receipt.receipt_no}`}><Button variant="outline" size="sm" data-testid="view-receipt-btn"><ReceiptText className="mr-1.5 h-4 w-4" />Receipt</Button></Link>}
+        <div className="flex items-center gap-2">
+          <a href={`/pay/${r.id}`} target="_blank" rel="noreferrer">
+            <Button variant="default" size="sm" className="bg-[#B9F36B] text-[#111827] hover:bg-[#a3e635]">
+              <ExternalLink className="mr-1.5 h-4 w-4" />Open Checkout
+            </Button>
+          </a>
+          {data.receipt && <Link to={`/receipts/${data.receipt.receipt_no}`}><Button variant="outline" size="sm" data-testid="view-receipt-btn"><ReceiptText className="mr-1.5 h-4 w-4" />Receipt</Button></Link>}
+        </div>
       </PageHeader>
       <div className="grid gap-4 lg:grid-cols-3">
         <Card title="Amounts" testid="detail-amounts">

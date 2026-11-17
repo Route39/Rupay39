@@ -116,11 +116,11 @@ def date_range(date_from: str | None, date_to: str | None, default_days: int = 3
 
 
 def clean(doc):
-    """Make a Mongo document JSON-safe (drop _id, datetimes -> ISO UTC)."""
+    """Make a Mongo document JSON-safe (drop _id, password_hash, datetimes -> ISO UTC)."""
     if isinstance(doc, list):
         return [clean(d) for d in doc]
     if isinstance(doc, dict):
-        return {k: clean(v) for k, v in doc.items() if k != "_id"}
+        return {k: clean(v) for k, v in doc.items() if k not in ("_id", "password_hash")}
     if isinstance(doc, datetime):
         if doc.tzinfo is None:
             doc = doc.replace(tzinfo=timezone.utc)
@@ -163,6 +163,16 @@ DEFAULT_SETTINGS = {
     "id": "global", "brand_name": "RUPAY39", "brand_tagline": "POWERED BY ROUTE39", "logo_url": "",
     "primary_provider": "MOCK", "payment_expiry_minutes": 30, "allow_partial_payments": False,
     "static_qr_image_url": "", "static_qr_vpa": "", "static_qr_merchant_name": "Route39 Mobility",
+    "driver_vpa": "route39mobility@kotak",
+    "driver_account_name": "Route39 Driver Operations",
+    "driver_account_no": "•••• •••• 3901",
+    "driver_bank_name": "Kotak Mahindra Bank",
+    "driver_ifsc": "KKBK0000421",
+    "investor_vpa": "route39investors@kotak",
+    "investor_account_name": "Route39 Investor Distributions",
+    "investor_account_no": "•••• •••• 5822",
+    "investor_bank_name": "Kotak Mahindra Bank",
+    "investor_ifsc": "KKBK0000421",
     "settlement_keywords": ["SETTLEMENT", "SETTL", "BULK CR"], "myvolt_simulate_failure": False,
     "column_mapping_presets": {}, "support_contact": "",
 }
