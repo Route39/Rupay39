@@ -5,7 +5,7 @@ import { Empty } from "./kit";
 export function DataTable({ columns, rows, loading, onRowClick, testid = "data-table", rowKey = "id" }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white" data-testid={testid}>
-      <table className="w-full min-w-[720px] text-sm">
+      <table className="w-full text-sm" style={{ minWidth: columns.length * 140 }}>
         <thead className="sticky top-0 bg-[#F8FAFC]">
           <tr>
             {columns.map((c) => (

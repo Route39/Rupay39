@@ -39,7 +39,7 @@ export default function SettingsPage() {
       <PageHeader title="Settings" subtitle={d ? "View only — Super Admin can edit." : "Changes are audit-logged."}>
         {isSuper && <Button onClick={save} className="bg-[#B9F36B] text-[#111827] hover:bg-[#a3e635]" data-testid="settings-save-btn">Save settings</Button>}
       </PageHeader>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid items-start gap-4 lg:grid-cols-2">
         <Card title="Brand (configurable until trademark clearance)"><div className="space-y-3"><Txt k="brand_name" label="Product name" {...p} /><Txt k="brand_tagline" label="Endorsement line" {...p} /><Txt k="logo_url" label="Logo URL" {...p} /></div></Card>
         <Card title="Payment rules"><div className="space-y-4">
           <Txt k="payment_expiry_minutes" label="Dynamic payment request expiry (minutes)" type="number" {...p} />
@@ -49,6 +49,7 @@ export default function SettingsPage() {
           <Txt k="static_qr_image_url" label="QR image URL (shown in EV Rent)" {...p} /><Txt k="static_qr_vpa" label="Merchant VPA" {...p} /><Txt k="static_qr_merchant_name" label="Payee name" {...p} />
           <p className="text-xs text-slate-500">Static QR payments are confirmed only when the bank statement UTR matches the driver's claimed UTR. Screenshots are never proof.</p>
         </div></Card>
+        <div className="lg:row-span-2">
         <Card title="Multi-Account Routing (Driver & Investor Accounts)"><div className="space-y-4">
           <div className="rounded-lg bg-emerald-50 p-2.5 text-xs text-emerald-800 font-medium">
             Account 1: Driver Operations (0% Gateway Fee · Direct Kotak Bank Settlement)
@@ -64,6 +65,7 @@ export default function SettingsPage() {
           <Txt k="investor_account_name" label="Investor Payee Name" {...p} />
           <Txt k="investor_account_no" label="Investor Bank Account Number" {...p} />
         </div></Card>
+        </div>
         <Card title="Reconciliation & integrations"><div className="space-y-4">
           <Txt k="settlement_keywords" label="Settlement narration keywords (comma separated)" {...p} />
           <Tog k="myvolt_simulate_failure" label="Simulate MyVolt outage (testing)" hint="Mock MyVolt rejects sync so you can test the retry queue and SYNC_FAILED exceptions." {...p} />

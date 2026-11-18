@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Receipt, FileClock, Landmark, GitCompareArrows, AlertTriangle, Wallet, Users, Truck, FileBarChart,
-  ShieldCheck, Plug, Network, ScrollText, Settings, LogOut, Link2, MoreHorizontal,
+  ShieldCheck, Plug, Network, ScrollText, Settings, LogOut, Link2, MoreHorizontal, Menu, X,
 } from "lucide-react";
 import { useMe } from "../context/MeContext";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export const Logo = ({ brand, dark }) => (
   </div>
 );
 
-function Sidebar() {
+function Sidebar({ onNavigate }) {
   const { brand } = useMe();
   const allowed = useAllowed();
   return (
@@ -47,7 +47,7 @@ function Sidebar() {
       <div className="px-5 py-5"><Logo brand={brand} dark /></div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-6">
         {NAV.filter((n) => allowed(n[3])).map(([to, name, Icon]) => (
-          <NavLink key={to} to={to} end={to === "/"} data-testid={`nav-${name.toLowerCase().replace(/ /g, "-")}`}
+          <NavLink key={to} to={to} end={to === "/"} onClick={onNavigate} data-testid={`nav-${name.toLowerCase().replace(/ /g, "-")}`}
             className={({ isActive }) => `flex items-center gap-3 rounded-md px-3 py-2 text-[13px] transition-colors ${isActive ? "bg-[#1F2937] font-semibold text-white shadow-[inset_-2px_0_0_#B9F36B]" : "text-[#94A3B8] hover:bg-[#1F2937]/70 hover:text-white"}`}>
             <Icon className="h-4 w-4" />{name}
           </NavLink>
@@ -110,6 +110,7 @@ function BottomNav() {
 
 export default function AppShell() {
   const { me, brand, logout } = useMe();
+  const [open, setOpen] = useState(false);
   const initial = (me?.name || me?.email || "U").charAt(0).toUpperCase();
 
   return (
@@ -117,7 +118,7 @@ export default function AppShell() {
       <div className="no-print sticky top-0 hidden h-screen lg:block"><Sidebar /></div>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="no-print sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#E2E8F0] bg-white/80 px-4 backdrop-blur-md sm:px-6">
-          <div className="lg:hidden"><Logo brand={brand} /></div>
+          <div className="flex items-center gap-2 lg:hidden"><button type="button" onClick={() => setOpen(true)} className="grid h-9 w-9 place-items-center rounded-md text-slate-700 hover:bg-slate-100" data-testid="menu-btn" aria-label="Open menu"><Menu className="h-5 w-5" /></button><Logo brand={brand} /></div>
           <div className="hidden text-xs text-slate-500 lg:block">Payment verification & reconciliation console</div>
           <div className="flex items-center gap-3">
             <div className="hidden text-right leading-tight sm:block">
@@ -133,6 +134,15 @@ export default function AppShell() {
         </header>
         <main className="print-area flex-1 space-y-6 p-4 pb-28 sm:p-6 sm:pb-28 lg:p-8"><Outlet /></main>
       </div>
+      {open && (
+        <div className="no-print fixed inset-0 z-50 lg:hidden" data-testid="mobile-drawer">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
+          <div className="absolute inset-y-0 left-0 shadow-xl">
+            <button type="button" onClick={() => setOpen(false)} className="absolute right-2 top-4 z-10 grid h-8 w-8 place-items-center rounded-md text-slate-300 hover:bg-white/10" aria-label="Close menu"><X className="h-4 w-4" /></button>
+            <Sidebar onNavigate={() => setOpen(false)} />
+          </div>
+        </div>
+      )}
       <BottomNav />
     </div>
   );

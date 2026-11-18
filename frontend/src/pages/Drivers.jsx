@@ -22,7 +22,7 @@ function DriverSheet({ id, onClose }) {
       <SheetContent className="w-full overflow-y-auto bg-white sm:max-w-2xl" data-testid="driver-sheet">
         {d && (<>
           <SheetHeader><SheetTitle>{d.name} <span className="font-mono text-sm text-slate-400">{d.id}</span></SheetTitle></SheetHeader>
-          <div className="mt-4 grid grid-cols-3 gap-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
             <Field k="Vehicle" v={d.vehicle_reg} mono /><Field k="City" v={d.city} /><Field k="Source" v={d.source} />
             <Field k="Daily rent" v={inr(d.daily_rent)} mono /><Field k="Outstanding" v={inr(d.outstanding_amount)} mono />
             <Field k="Payable now" v={<b>{inr(data.payable.total_payable)}</b>} mono />

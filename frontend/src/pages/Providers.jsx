@@ -17,9 +17,9 @@ function CredForm({ code, onSaved }) {
   };
   return (
     <div className="flex flex-wrap gap-2">
-      <Input placeholder="Field (e.g. merchant_id)" value={k} onChange={(e) => setK(e.target.value)} className="h-8 w-44 text-xs" data-testid={`cred-key-${code}`} />
-      <Input placeholder="Value (write-only)" type="password" value={v} onChange={(e) => setV(e.target.value)} className="h-8 w-44 text-xs" data-testid={`cred-value-${code}`} />
-      <Button size="sm" variant="outline" disabled={!k || !v} onClick={save} data-testid={`cred-save-${code}`}>Save encrypted</Button>
+      <Input placeholder="Field (e.g. merchant_id)" value={k} onChange={(e) => setK(e.target.value)} className="h-8 w-full text-xs" data-testid={`cred-key-${code}`} />
+      <Input placeholder="Value (write-only)" type="password" value={v} onChange={(e) => setV(e.target.value)} className="h-8 w-full text-xs" data-testid={`cred-value-${code}`} />
+      <Button size="sm" variant="outline" className="w-full" disabled={!k || !v} onClick={save} data-testid={`cred-save-${code}`}>Save encrypted</Button>
     </div>
   );
 }
@@ -37,13 +37,13 @@ export default function Providers() {
       <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800" data-testid="kotak-notice">
         <ShieldAlert className="h-4 w-4 shrink-0" />Kotak live APIs are not assumed. The Kotak adapter stays disabled until Kotak supplies approved API documentation, credentials, commercial terms and production access. No Kotak endpoints or payload formats have been invented.
       </div>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid items-start gap-4 md:grid-cols-2 min-[1800px]:grid-cols-3">
         {(data || []).map((p) => (
           <Card key={p.code} testid={`provider-card-${p.code}`} title={<span className="flex items-center gap-2">{p.name}{p.is_primary && <Star className="h-3.5 w-3.5 fill-[#B9F36B] text-[#4d7c0f]" />}</span>}
             action={<Switch checked={p.enabled} disabled={!isSuper || p.code === "KOTAK"} onCheckedChange={(v) => patch(p.code, { enabled: v })} data-testid={`provider-enabled-${p.code}`} />}>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field k="Code" v={p.code} mono /><Field k="Mode" v={<StatusBadge status={p.is_simulated ? "SIMULATED" : p.mode} />} />
-              <Field k="Status" v={<StatusBadge status={p.status} />} /><Field k="Methods" v={p.methods.join(", ")} />
+              <Field k="Status" v={<StatusBadge status={p.status} />} /><Field k="Methods" v={<span className="[word-break:normal] break-words">{p.methods.join(", ")}</span>} />
               <Field k="Callback URL" v={p.supports_callbacks || p.code === "KOTAK" ? p.webhook_path : "Bank statement only"} mono />
               <Field k="Stored credentials" v={p.credential_fields.length ? p.credential_fields.join(", ") : "None"} mono />
             </div>

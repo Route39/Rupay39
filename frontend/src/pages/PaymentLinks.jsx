@@ -428,7 +428,7 @@ export default function PaymentLinks() {
       </div>
 
       {/* 5. SUB-TABS & ACCOUNT FILTER (Smooth Horizontal Scroll on Mobile) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-3 gap-3">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-200 pb-3 gap-3">
         {/* Status Tabs */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-6 text-xs font-semibold">
           {[
@@ -461,9 +461,9 @@ export default function PaymentLinks() {
         </div>
 
         {/* Account Filter Pill */}
-        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+        <div className="flex w-full flex-col gap-1.5 lg:w-auto lg:flex-row lg:items-center lg:gap-2">
           <span className="text-xs text-slate-500 font-medium whitespace-nowrap">Filter Account:</span>
-          <div className="grid grid-cols-3 items-stretch sm:inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs sm:whitespace-nowrap">
+          <div className="grid w-full grid-cols-3 items-stretch lg:inline-flex lg:w-auto rounded-lg border border-slate-200 bg-white p-0.5 text-xs lg:whitespace-nowrap">
             <button
               onClick={() => setAccountFilter("ALL")}
               className={`rounded-md px-1.5 py-1.5 text-center leading-tight text-[11px] font-semibold transition sm:px-2.5 sm:py-1 ${
